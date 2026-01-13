@@ -11,6 +11,15 @@ class Asteroid(CircleShape):
     def __init__(self, x, y, radius):
         super().__init__(x, y, radius)
 
+    def get_kind(self) -> int:
+        """Return the kind (1-3) based on radius.
+
+        kind=3: Large (radius=60) -> 20 points
+        kind=2: Medium (radius=40) -> 50 points
+        kind=1: Small (radius=20) -> 100 points
+        """
+        return round(self.radius / ASTEROID_MIN_RADIUS)
+
     @override
     def draw(self, screen):
         pygame.draw.circle(screen, "white", self.position, self.radius, LINE_WIDTH)
