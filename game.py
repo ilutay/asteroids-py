@@ -1,3 +1,4 @@
+import asyncio
 import sys
 
 import pygame
@@ -14,21 +15,27 @@ from states import (
     PausedState,
     PlayingState,
 )
+from utils.platform import get_storage, is_web
 
 
 class Game:
     """Main game controller with state machine."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Asteroids")
         self.clock = pygame.time.Clock()
 
-        # Initialize database
-        self.db_connection = DatabaseConnection().get_connection()
-        Migrator(self.db_connection).run_migrations()
-        self.score_repository = ScoreRepository(self.db_connection)
+        # Initialize storage (local SQLite or remote API based on platform/config)
+        if is_web():
+            self.db_connection = None
+            self.score_repository = get_storage()
+        else:
+            self.db_connection = DatabaseConnection().get_connection()
+            Migrator(self.db_connection).run_migrations()
+            repository = ScoreRepository(self.db_connection)
+            self.score_repository = get_storage(repository=repository)
 
         # Shared game data
         self.final_score = 0
@@ -49,7 +56,7 @@ class Game:
     def current_state(self) -> BaseState:
         return self.states[self.current_state_type]
 
-    def change_state(self, new_state_type: GameStateType):
+    def change_state(self, new_state_type: GameStateType) -> None:
         """Transition to a new state."""
         old_state_type = self.current_state_type
         self.current_state.exit()
@@ -62,8 +69,8 @@ class Game:
         else:
             self.current_state.enter()
 
-    def run(self):
-        """Main game loop."""
+    async def run(self) -> None:
+        """Main game loop (async for pygame-web compatibility)."""
         while True:
             dt = self.clock.tick(60) / 1000.0
 
@@ -82,8 +89,12 @@ class Game:
             self.current_state.render(self.screen)
             pygame.display.flip()
 
-    def _quit(self):
+            # Yield to browser event loop (required for pygame-web)
+            await asyncio.sleep(0)
+
+    def _quit(self) -> None:
         """Clean shutdown."""
-        DatabaseConnection().close()
+        if self.db_connection is not None:
+            DatabaseConnection().close()
         pygame.quit()
         sys.exit()
