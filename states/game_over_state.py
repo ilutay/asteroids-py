@@ -2,7 +2,14 @@ from typing import TYPE_CHECKING
 
 import pygame
 
-from constants import FONT_SIZE_LARGE, FONT_SIZE_MEDIUM, FONT_SIZE_SMALL, SCREEN_HEIGHT, SCREEN_WIDTH
+from constants import (
+    FONT_SIZE_LARGE,
+    FONT_SIZE_MEDIUM,
+    FONT_SIZE_SMALL,
+    SCREEN_HEIGHT,
+    SCREEN_WIDTH,
+)
+
 from .base_state import BaseState, GameStateType
 
 if TYPE_CHECKING:
@@ -15,27 +22,29 @@ class GameOverState(BaseState):
     MENU_OPTIONS = ["Play Again", "Main Menu"]
     MAX_NAME_LENGTH = 20
 
-    def __init__(self, game: "Game"):
+    def __init__(self, game: "Game") -> None:
         super().__init__(game)
         self.is_high_score = False
         self.player_name = ""
         self.name_submitted = False
+        self.save_error: str | None = None
         self.selected_index = 0
-        self.title_font = None
-        self.menu_font = None
-        self.info_font = None
+        self.title_font: pygame.font.Font | None = None
+        self.menu_font: pygame.font.Font | None = None
+        self.info_font: pygame.font.Font | None = None
 
-    def enter(self):
+    def enter(self) -> None:
         self.is_high_score = self.game.score_repository.is_high_score(self.game.final_score)
         self.player_name = ""
         self.name_submitted = False
+        self.save_error = None
         self.selected_index = 0
         pygame.font.init()
         self.title_font = pygame.font.Font(None, FONT_SIZE_LARGE)
         self.menu_font = pygame.font.Font(None, FONT_SIZE_MEDIUM)
         self.info_font = pygame.font.Font(None, FONT_SIZE_SMALL)
 
-    def exit(self):
+    def exit(self) -> None:
         pass
 
     def handle_event(self, event: pygame.event.Event) -> GameStateType | None:
@@ -47,7 +56,13 @@ class GameOverState(BaseState):
     def _handle_name_input(self, event: pygame.event.Event) -> GameStateType | None:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RETURN and len(self.player_name) > 0:
-                self.game.score_repository.save_score(self.player_name, self.game.final_score)
+                result = self.game.score_repository.save_score(
+                    self.player_name, self.game.final_score
+                )
+                if result.success:
+                    self.save_error = None
+                else:
+                    self.save_error = result.error_message or "Failed to save score"
                 self.name_submitted = True
             elif event.key == pygame.K_BACKSPACE:
                 self.player_name = self.player_name[:-1]
@@ -73,8 +88,11 @@ class GameOverState(BaseState):
     def update(self, dt: float) -> GameStateType | None:
         return None
 
-    def render(self, screen: pygame.Surface):
+    def render(self, screen: pygame.Surface) -> None:
         screen.fill("black")
+
+        if self.title_font is None or self.menu_font is None or self.info_font is None:
+            return
 
         # Render "GAME OVER"
         title_text = self.title_font.render("GAME OVER", True, "red")
@@ -108,6 +126,14 @@ class GameOverState(BaseState):
             hint_rect = hint_text.get_rect(center=(SCREEN_WIDTH // 2, 460))
             screen.blit(hint_text, hint_rect)
         else:
+            # Show save error if any
+            if self.save_error:
+                error_text = self.info_font.render(
+                    f"Error: {self.save_error}", True, "red"
+                )
+                error_rect = error_text.get_rect(center=(SCREEN_WIDTH // 2, 280))
+                screen.blit(error_text, error_rect)
+
             # Render menu options
             start_y = SCREEN_HEIGHT // 2 + 50
             for i, option in enumerate(self.MENU_OPTIONS):

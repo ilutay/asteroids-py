@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import pygame
 
@@ -17,6 +17,7 @@ from constants import (
 from player import Player
 from shot import Shot
 from ui.hud import HUD
+
 from .base_state import BaseState, GameStateType
 
 if TYPE_CHECKING:
@@ -26,20 +27,20 @@ if TYPE_CHECKING:
 class PlayingState(BaseState):
     """Active gameplay state with game loop logic."""
 
-    def __init__(self, game: "Game"):
+    def __init__(self, game: "Game") -> None:
         super().__init__(game)
         self.score = 0
         self.lives = STARTING_LIVES
         self.extra_life_threshold = EXTRA_LIFE_POINTS
-        self.updatable = pygame.sprite.Group()
-        self.drawable = pygame.sprite.Group()
-        self.asteroids = pygame.sprite.Group()
-        self.shots = pygame.sprite.Group()
-        self.player = None
-        self.asteroid_field = None
-        self.hud = None
+        self.updatable: pygame.sprite.Group[Any] = pygame.sprite.Group()
+        self.drawable: pygame.sprite.Group[Any] = pygame.sprite.Group()
+        self.asteroids: pygame.sprite.Group[Any] = pygame.sprite.Group()
+        self.shots: pygame.sprite.Group[Any] = pygame.sprite.Group()
+        self.player: Player | None = None
+        self.asteroid_field: AsteroidField | None = None
+        self.hud: HUD | None = None
 
-    def _reset_game_session(self):
+    def _reset_game_session(self) -> None:
         """Initialize/reset all game session variables."""
         self.score = 0
         self.lives = STARTING_LIVES
@@ -65,10 +66,10 @@ class PlayingState(BaseState):
         self.player = Player(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
         self.hud = HUD()
 
-    def enter(self):
+    def enter(self) -> None:
         self._reset_game_session()
 
-    def exit(self):
+    def exit(self) -> None:
         # Kill all sprites
         for sprite in list(self.updatable):
             sprite.kill()
@@ -81,6 +82,9 @@ class PlayingState(BaseState):
 
     def update(self, dt: float) -> GameStateType | None:
         self.updatable.update(dt)
+
+        if self.player is None:
+            return None
 
         # Check player-asteroid collisions
         for asteroid in list(self.asteroids):
@@ -110,13 +114,15 @@ class PlayingState(BaseState):
             self._respawn_player()
             return None
 
-    def _respawn_player(self):
+    def _respawn_player(self) -> None:
         """Respawn player at center with invincibility."""
+        if self.player is None:
+            return
         self.player.reset(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
         self.player.start_invincibility()
         self._clear_safety_zone()
 
-    def _clear_safety_zone(self):
+    def _clear_safety_zone(self) -> None:
         """Remove asteroids near the spawn point."""
         center = pygame.Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
         for asteroid in list(self.asteroids):
@@ -133,14 +139,15 @@ class PlayingState(BaseState):
         }
         return points_map.get(kind, 0)
 
-    def _check_extra_life(self):
+    def _check_extra_life(self) -> None:
         """Award extra life every EXTRA_LIFE_POINTS points."""
         if self.score >= self.extra_life_threshold:
             self.lives += 1
             self.extra_life_threshold += EXTRA_LIFE_POINTS
 
-    def render(self, screen: pygame.Surface):
+    def render(self, screen: pygame.Surface) -> None:
         screen.fill("black")
         for obj in self.drawable:
             obj.draw(screen)
-        self.hud.render(screen, self.score, self.lives)
+        if self.hud is not None:
+            self.hud.render(screen, self.score, self.lives)

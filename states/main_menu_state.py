@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 import pygame
 
 from constants import FONT_SIZE_LARGE, FONT_SIZE_MEDIUM, SCREEN_HEIGHT, SCREEN_WIDTH
+
 from .base_state import BaseState, GameStateType
 
 if TYPE_CHECKING:
@@ -15,15 +16,15 @@ class MainMenuState(BaseState):
 
     MENU_OPTIONS = ["New Game", "High Scores", "Quit"]
 
-    def __init__(self, game: "Game"):
+    def __init__(self, game: "Game") -> None:
         super().__init__(game)
         self.selected_index = 0
         self.high_score = 0
-        self.title_font = None
-        self.menu_font = None
-        self.score_font = None
+        self.title_font: pygame.font.Font | None = None
+        self.menu_font: pygame.font.Font | None = None
+        self.score_font: pygame.font.Font | None = None
 
-    def enter(self):
+    def enter(self) -> None:
         self.selected_index = 0
         self.high_score = self.game.score_repository.get_highest_score()
         pygame.font.init()
@@ -31,7 +32,7 @@ class MainMenuState(BaseState):
         self.menu_font = pygame.font.Font(None, FONT_SIZE_MEDIUM)
         self.score_font = pygame.font.Font(None, FONT_SIZE_MEDIUM)
 
-    def exit(self):
+    def exit(self) -> None:
         pass
 
     def handle_event(self, event: pygame.event.Event) -> GameStateType | None:
@@ -58,8 +59,11 @@ class MainMenuState(BaseState):
     def update(self, dt: float) -> GameStateType | None:
         return None
 
-    def render(self, screen: pygame.Surface):
+    def render(self, screen: pygame.Surface) -> None:
         screen.fill("black")
+
+        if self.title_font is None or self.menu_font is None or self.score_font is None:
+            return
 
         # Render title "ASTEROIDS"
         title_text = self.title_font.render("ASTEROIDS", True, "white")

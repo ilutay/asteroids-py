@@ -23,12 +23,12 @@ class BaseState(ABC):
         self.game = game
 
     @abstractmethod
-    def enter(self):
+    def enter(self) -> None:
         """Called when entering this state."""
         pass
 
     @abstractmethod
-    def exit(self):
+    def exit(self) -> None:
         """Called when leaving this state."""
         pass
 
@@ -43,6 +43,6 @@ class BaseState(ABC):
         pass
 
     @abstractmethod
-    def render(self, screen: pygame.Surface):
+    def render(self, screen: pygame.Surface) -> None:
         """Render this state to the screen."""
         pass
