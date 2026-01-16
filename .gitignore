@@ -11,3 +11,12 @@ game_state.jsonl
 
 # Virtual environments
 .venv
+
+# Environment and secrets
+.env
+
+# pygame-web build output
+static/
+
+# SQLite database (VPS)
+data/*.db

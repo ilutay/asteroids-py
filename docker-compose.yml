@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  api:
+    build: ./server
+    ports:
+      - "8000:8000"
+    environment:
+      - API_KEY=${API_KEY}
+      - DATABASE_PATH=/app/data/asteroids.db
+    volumes:
+      - ./data:/app/data      # SQLite persistence
+      - ./static:/app/static  # Serve web build
+    restart: unless-stopped
