@@ -24,7 +24,7 @@ class ScoreRepository:
             (player_name, score),
         )
         self.conn.commit()
-        return cursor.lastrowid
+        return cursor.lastrowid or 0
 
     def get_top_scores(self, limit: int = 10) -> list[HighScore]:
         """Retrieve top N scores, ordered by score descending."""
@@ -59,6 +59,6 @@ class ScoreRepository:
             "SELECT COUNT(*) as count FROM high_scores WHERE score > ?",
             (score,),
         )
-        count = cursor.fetchone()["count"]
+        count: int = cursor.fetchone()["count"]
         # Qualifies if fewer than 10 scores beat it
         return count < 10
