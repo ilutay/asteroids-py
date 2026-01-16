@@ -1,9 +1,43 @@
 [project]
 name = "asteroids-py"
 version = "0.1.0"
-description = "Add your description here"
+description = "Classic Asteroids game with web support and shared high scores"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "pygame==2.6.1",
+    "pygame>=2.6.1",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.8.0",
+    "mypy>=1.13.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "UP",     # pyupgrade
+]
+ignore = [
+    "E501",   # line too long (handled by formatter)
+]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+python_version = "3.13"
+warn_return_any = true
+warn_unused_ignores = true
+disallow_untyped_defs = true
+ignore_missing_imports = true
+exclude = ["server/"]
