@@ -1,4 +1,4 @@
-.PHONY: install install-server build deploy run run-desktop server watch dev lint format clean help
+.PHONY: install install-server build deploy run run-desktop server watch dev lint format test clean help
 
 # Default target
 help:
@@ -68,6 +68,10 @@ lint:
 format:
 	uv pip install ruff -q
 	uv run ruff format . --exclude .venv
+
+# Run server tests
+test:
+	cd server && uv sync --extra dev && uv run pytest -v
 
 # Clean build artifacts
 clean:

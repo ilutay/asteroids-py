@@ -91,7 +91,7 @@ Create `/etc/nginx/sites-available/asteroids`:
 ```nginx
 server {
     listen 80;
-    server_name asteroids.ilutay.com;
+    server_name asteroids.***.com;
 
     location / {
         proxy_pass http://127.0.0.1:8000;
