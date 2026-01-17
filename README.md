@@ -2,6 +2,13 @@
 
 A classic Asteroids game built with Pygame, deployable to the web using Pygbag.
 
+## About
+
+This project was created as a hands-on learning exercise to explore:
+- **Python classes** - Object-oriented programming with game entities
+- **Pygame** - 2D game development and graphics
+- **Pygbag** - Compiling Python games to WebAssembly for browser deployment
+
 ## Requirements
 
 - Python 3.12+
