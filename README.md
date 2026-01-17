@@ -258,7 +258,9 @@ mkdir -p /opt/asteroids/data
 ### Step 7: Build and Start Services
 
 ```bash
-docker compose up -d --build
+docker-compose up -d --build
+docker-compose up -d
+
 ```
 
 ### Step 8: Verify Deployment
@@ -268,7 +270,7 @@ docker compose up -d --build
 docker compose ps
 
 # Check logs
-docker compose logs -f
+docker-compose logs -f
 
 # Test health endpoint
 curl http://localhost:8000/health
