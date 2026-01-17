@@ -1,1 +1,1 @@
-from .hud import HUD
+from .hud import HUD as HUD

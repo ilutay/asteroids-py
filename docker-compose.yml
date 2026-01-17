@@ -1,0 +1,11 @@
+services:
+  asteroids:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - asteroids-data:/app/server/data
+    restart: unless-stopped
+
+volumes:
+  asteroids-data:

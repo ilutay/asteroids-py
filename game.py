@@ -1,10 +1,11 @@
+import asyncio
 import sys
 
 import pygame
 
+from api_client import APIClient
 from constants import SCREEN_HEIGHT, SCREEN_WIDTH
-from database import DatabaseConnection, Migrator
-from database.repositories import ScoreRepository
+from score_repository import ScoreRepository
 from states import (
     BaseState,
     GameOverState,
@@ -19,16 +20,15 @@ from states import (
 class Game:
     """Main game controller with state machine."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Asteroids")
         self.clock = pygame.time.Clock()
 
-        # Initialize database
-        self.db_connection = DatabaseConnection().get_connection()
-        Migrator(self.db_connection).run_migrations()
-        self.score_repository = ScoreRepository(self.db_connection)
+        # Initialize API client and score repository
+        self.api_client = APIClient()
+        self.score_repository = ScoreRepository(self.api_client)
 
         # Shared game data
         self.final_score = 0
@@ -43,27 +43,35 @@ class Game:
         }
 
         self.current_state_type = GameStateType.MAIN_MENU
-        self.current_state.enter()
+        self._initial_enter_done = False
 
     @property
     def current_state(self) -> BaseState:
         return self.states[self.current_state_type]
 
-    def change_state(self, new_state_type: GameStateType):
+    async def change_state(self, new_state_type: GameStateType):
         """Transition to a new state."""
         old_state_type = self.current_state_type
-        self.current_state.exit()
+        await self.current_state.exit()
         self.current_state_type = new_state_type
 
         # Special case: resuming from pause should not reset the game
-        if old_state_type == GameStateType.PAUSED and new_state_type == GameStateType.PLAYING:
+        if (
+            old_state_type == GameStateType.PAUSED
+            and new_state_type == GameStateType.PLAYING
+        ):
             # Don't call enter() - just resume
             pass
         else:
-            self.current_state.enter()
+            await self.current_state.enter()
 
-    def run(self):
+    async def run(self):
         """Main game loop."""
+        # Initial state enter
+        if not self._initial_enter_done:
+            await self.current_state.enter()
+            self._initial_enter_done = True
+
         while True:
             dt = self.clock.tick(60) / 1000.0
 
@@ -71,19 +79,20 @@ class Game:
                 if event.type == pygame.QUIT:
                     self._quit()
 
-                new_state = self.current_state.handle_event(event)
+                new_state = await self.current_state.handle_event(event)
                 if new_state:
-                    self.change_state(new_state)
+                    await self.change_state(new_state)
 
-            new_state = self.current_state.update(dt)
+            new_state = await self.current_state.update(dt)
             if new_state:
-                self.change_state(new_state)
+                await self.change_state(new_state)
 
-            self.current_state.render(self.screen)
+            await self.current_state.render(self.screen)
             pygame.display.flip()
 
-    def _quit(self):
+            await asyncio.sleep(0)
+
+    def _quit(self) -> None:
         """Clean shutdown."""
-        DatabaseConnection().close()
         pygame.quit()
         sys.exit()
