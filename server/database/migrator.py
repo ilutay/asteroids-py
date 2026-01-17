@@ -1,12 +1,14 @@
 import glob
 import os
 import sqlite3
+from pathlib import Path
 
 
 class Migrator:
     """Runs SQL migrations in order based on version prefix."""
 
-    MIGRATIONS_DIR = "./migrations"
+    _SERVER_DIR = Path(__file__).parent.parent
+    MIGRATIONS_DIR = _SERVER_DIR / "migrations"
 
     def __init__(self, connection: sqlite3.Connection):
         self.conn = connection
@@ -16,12 +18,14 @@ class Migrator:
         self._ensure_schema_table()
         applied = self._get_applied_versions()
 
-        migration_files = sorted(glob.glob(f"{self.MIGRATIONS_DIR}/V*.sql"))
+        migration_files = sorted(glob.glob(str(self.MIGRATIONS_DIR / "V*.sql")))
 
         for filepath in migration_files:
             filename = os.path.basename(filepath)
             version = filename.split("__")[0]
-            description = filename.split("__")[1].replace(".sql", "") if "__" in filename else ""
+            description = (
+                filename.split("__")[1].replace(".sql", "") if "__" in filename else ""
+            )
 
             if version not in applied:
                 self._apply_migration(filepath, version, description)

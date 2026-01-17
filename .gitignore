@@ -12,3 +12,10 @@ game_state.jsonl
 
 # Virtual environments
 .venv
+
+# Pygbag build output
+server/static/game/
+
+# Data directories
+data/
+server/data/

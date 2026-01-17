@@ -20,16 +20,16 @@ class PausedState(BaseState):
         self.title_font = None
         self.menu_font = None
 
-    def enter(self):
+    async def enter(self):
         self.selected_index = 0
         pygame.font.init()
         self.title_font = pygame.font.Font(None, FONT_SIZE_LARGE)
         self.menu_font = pygame.font.Font(None, FONT_SIZE_MEDIUM)
 
-    def exit(self):
+    async def exit(self):
         pass
 
-    def handle_event(self, event: pygame.event.Event) -> GameStateType | None:
+    async def handle_event(self, event: pygame.event.Event) -> GameStateType | None:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 return GameStateType.PLAYING  # Resume on ESC
@@ -49,13 +49,13 @@ class PausedState(BaseState):
             return GameStateType.MAIN_MENU
         return None
 
-    def update(self, dt: float) -> GameStateType | None:
+    async def update(self, dt: float) -> GameStateType | None:
         return None
 
-    def render(self, screen: pygame.Surface):
+    async def render(self, screen: pygame.Surface):
         # First render the frozen game underneath (from playing state)
         playing_state = self.game.states[GameStateType.PLAYING]
-        playing_state.render(screen)
+        await playing_state.render(screen)
 
         # Draw semi-transparent overlay
         overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
@@ -64,7 +64,9 @@ class PausedState(BaseState):
 
         # Render "PAUSED" text
         paused_text = self.title_font.render("PAUSED", True, "white")
-        paused_rect = paused_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 80))
+        paused_rect = paused_text.get_rect(
+            center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 80)
+        )
         screen.blit(paused_text, paused_rect)
 
         # Render menu options

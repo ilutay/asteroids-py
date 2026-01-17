@@ -1,10 +1,18 @@
+import asyncio
+import logging
+
+# Configure logging for the game client
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+)
+
 from game import Game
 
 
-def main():
+async def main():
     game = Game()
-    game.run()
+    await game.run()
 
 
-if __name__ == "__main__":
-    main()
+asyncio.run(main())

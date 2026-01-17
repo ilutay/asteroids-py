@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 import pygame
 
-from constants import FONT_SIZE_LARGE, FONT_SIZE_MEDIUM, FONT_SIZE_SMALL, SCREEN_HEIGHT, SCREEN_WIDTH
+from constants import FONT_SIZE_LARGE, FONT_SIZE_SMALL, SCREEN_HEIGHT, SCREEN_WIDTH
 from .base_state import BaseState, GameStateType
 
 if TYPE_CHECKING:
@@ -19,26 +19,28 @@ class HighScoresState(BaseState):
         self.score_font = None
         self.hint_font = None
 
-    def enter(self):
-        self.scores = self.game.score_repository.get_top_scores(10)
+    async def enter(self):
+        print("HighScoresState.enter() - fetching scores")
+        self.scores = await self.game.score_repository.get_top_scores(10)
+        print(f"HighScoresState.enter() - got {len(self.scores)} scores")
         pygame.font.init()
         self.title_font = pygame.font.Font(None, FONT_SIZE_LARGE)
         self.score_font = pygame.font.Font(None, FONT_SIZE_SMALL)
         self.hint_font = pygame.font.Font(None, FONT_SIZE_SMALL)
 
-    def exit(self):
+    async def exit(self):
         pass
 
-    def handle_event(self, event: pygame.event.Event) -> GameStateType | None:
+    async def handle_event(self, event: pygame.event.Event) -> GameStateType | None:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE or event.key == pygame.K_RETURN:
                 return GameStateType.MAIN_MENU
         return None
 
-    def update(self, dt: float) -> GameStateType | None:
+    async def update(self, dt: float) -> GameStateType | None:
         return None
 
-    def render(self, screen: pygame.Surface):
+    async def render(self, screen: pygame.Surface):
         screen.fill("black")
 
         # Render title

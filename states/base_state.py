@@ -23,26 +23,26 @@ class BaseState(ABC):
         self.game = game
 
     @abstractmethod
-    def enter(self):
+    async def enter(self):
         """Called when entering this state."""
         pass
 
     @abstractmethod
-    def exit(self):
+    async def exit(self):
         """Called when leaving this state."""
         pass
 
     @abstractmethod
-    def handle_event(self, event: pygame.event.Event) -> GameStateType | None:
+    async def handle_event(self, event: pygame.event.Event) -> GameStateType | None:
         """Process a single pygame event. Return new state type or None."""
         pass
 
     @abstractmethod
-    def update(self, dt: float) -> GameStateType | None:
+    async def update(self, dt: float) -> GameStateType | None:
         """Update state logic. Return new state type or None."""
         pass
 
     @abstractmethod
-    def render(self, screen: pygame.Surface):
+    async def render(self, screen: pygame.Surface):
         """Render this state to the screen."""
         pass

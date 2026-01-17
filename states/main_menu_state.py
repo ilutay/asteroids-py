@@ -23,18 +23,18 @@ class MainMenuState(BaseState):
         self.menu_font = None
         self.score_font = None
 
-    def enter(self):
+    async def enter(self):
         self.selected_index = 0
-        self.high_score = self.game.score_repository.get_highest_score()
+        self.high_score = await self.game.score_repository.get_highest_score()
         pygame.font.init()
         self.title_font = pygame.font.Font(None, FONT_SIZE_LARGE)
         self.menu_font = pygame.font.Font(None, FONT_SIZE_MEDIUM)
         self.score_font = pygame.font.Font(None, FONT_SIZE_MEDIUM)
 
-    def exit(self):
+    async def exit(self):
         pass
 
-    def handle_event(self, event: pygame.event.Event) -> GameStateType | None:
+    async def handle_event(self, event: pygame.event.Event) -> GameStateType | None:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP:
                 self.selected_index = (self.selected_index - 1) % len(self.MENU_OPTIONS)
@@ -55,10 +55,10 @@ class MainMenuState(BaseState):
             sys.exit()
         return None
 
-    def update(self, dt: float) -> GameStateType | None:
+    async def update(self, dt: float) -> GameStateType | None:
         return None
 
-    def render(self, screen: pygame.Surface):
+    async def render(self, screen: pygame.Surface):
         screen.fill("black")
 
         # Render title "ASTEROIDS"
