@@ -1,16 +1,16 @@
 import asyncio
 import logging
 
+from game import Game
+
 # Configure logging for the game client
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 
-from game import Game
 
-
-async def main():
+async def main() -> None:
     game = Game()
     await game.run()
 

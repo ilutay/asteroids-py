@@ -20,7 +20,7 @@ from states import (
 class Game:
     """Main game controller with state machine."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption("Asteroids")
@@ -92,7 +92,7 @@ class Game:
 
             await asyncio.sleep(0)
 
-    def _quit(self):
+    def _quit(self) -> None:
         """Clean shutdown."""
         pygame.quit()
         sys.exit()
