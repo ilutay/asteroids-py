@@ -8,6 +8,7 @@ wheels/
 game_events.jsonl
 game_state.jsonl
 *.db
+.env
 
 # Virtual environments
 .venv
