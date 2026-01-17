@@ -21,7 +21,7 @@ def _log(msg: str) -> None:
     if _is_browser():
         print(f"[API] {msg}")
     else:
-        _log(msg)
+        logger.info(msg)
 
 
 def _get_api_base_url() -> str:
@@ -60,44 +60,35 @@ class APIClient:
     async def _browser_fetch(
         self, method: str, url: str, data: Optional[dict] = None
     ) -> dict:
-        """Use JavaScript fetch for pygbag HTTP requests."""
+        """Use synchronous XMLHttpRequest for browser HTTP requests."""
         try:
             import json
-            import platform as platform_module
+            import platform
 
-            # Access JavaScript globals via platform module
-            window = platform_module.window
+            window = platform.window
 
-            js_headers = {"Content-Type": "application/json"}
+            # Create synchronous XMLHttpRequest using eval
+            xhr = window.eval("new XMLHttpRequest()")
+            xhr.open(method, url, False)  # False = synchronous
+
+            # Set headers
+            xhr.setRequestHeader("Content-Type", "application/json")
             if self._token:
-                js_headers["Authorization"] = f"Bearer {self._token}"
+                xhr.setRequestHeader("Authorization", f"Bearer {self._token}")
 
-            # Build fetch options as JS object
-            options_dict = {
-                "method": method,
-                "headers": js_headers,
-            }
+            # Send request
             if data is not None:
-                options_dict["body"] = json.dumps(data)
+                xhr.send(json.dumps(data))
+            else:
+                xhr.send()
 
-            # Convert Python dict to JS object
-            options = window.JSON.parse(json.dumps(options_dict))
-
-            # Use pygbag's ffi.JsProxy for proper promise handling
-            from platform import ffi
-
-            # Call fetch and properly await the JS promise
-            response = await ffi.proxy(window.fetch(url, options))
-
-            if response.status >= 400:
-                _log(f"Browser fetch failed with status {response.status}")
+            if xhr.status >= 400:
+                _log(f"Browser fetch failed with status {xhr.status}")
                 return {}
 
-            # Await the JSON promise
-            json_data = await ffi.proxy(response.json())
-
-            # Convert JS object to Python dict
-            return json.loads(window.JSON.stringify(json_data))
+            # Parse JSON response
+            response_text = xhr.responseText
+            return json.loads(response_text) if response_text else {}
         except Exception as e:
             _log(f"Browser fetch error: {e}")
             return {}
