@@ -8,12 +8,12 @@ class HUD:
 
     HEART_SYMBOL = "\u2665"  # Unicode heart
 
-    def __init__(self):
+    def __init__(self) -> None:
         pygame.font.init()
         self.score_font = pygame.font.Font(None, FONT_SIZE_MEDIUM)
         self.lives_font = pygame.font.Font(None, FONT_SIZE_SMALL)
 
-    def render(self, screen: pygame.Surface, score: int, lives: int):
+    def render(self, screen: pygame.Surface, score: int, lives: int) -> None:
         """Render score and lives to screen."""
         # Score in top-left
         score_text = self.score_font.render(f"SCORE: {score}", True, "white")

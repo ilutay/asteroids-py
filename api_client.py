@@ -42,7 +42,9 @@ class APIClient:
 
     def __init__(self):
         self._token: Optional[str] = None
-        _log(f"APIClient initialized, is_browser={_is_browser()}, base_url={_get_api_base_url()}")
+        _log(
+            f"APIClient initialized, is_browser={_is_browser()}, base_url={_get_api_base_url()}"
+        )
 
     async def _fetch_json(
         self, method: str, path: str, data: Optional[dict] = None
@@ -119,7 +121,9 @@ class APIClient:
                     ) as response:
                         if response.status not in (200, 201):
                             text = await response.text()
-                            _log(f"POST {url} failed with status {response.status}: {text}")
+                            _log(
+                                f"POST {url} failed with status {response.status}: {text}"
+                            )
                             return {}
                         result = await response.json()
                         _log(f"POST {url} success: {result}")
