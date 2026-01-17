@@ -80,5 +80,7 @@ class MainMenuState(BaseState):
             score_text = self.score_font.render(
                 f"HIGH SCORE: {self.high_score}", True, "cyan"
             )
-            score_rect = score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100))
+            score_rect = score_text.get_rect(
+                center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 100)
+            )
             screen.blit(score_text, score_rect)

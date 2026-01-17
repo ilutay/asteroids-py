@@ -20,9 +20,7 @@ class HighScoresState(BaseState):
         self.hint_font = None
 
     async def enter(self):
-        print("HighScoresState.enter() - fetching scores")
         self.scores = await self.game.score_repository.get_top_scores(10)
-        print(f"HighScoresState.enter() - got {len(self.scores)} scores")
         pygame.font.init()
         self.title_font = pygame.font.Font(None, FONT_SIZE_LARGE)
         self.score_font = pygame.font.Font(None, FONT_SIZE_SMALL)
@@ -50,7 +48,9 @@ class HighScoresState(BaseState):
 
         if not self.scores:
             no_scores_text = self.score_font.render("No scores yet!", True, "gray")
-            no_scores_rect = no_scores_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+            no_scores_rect = no_scores_text.get_rect(
+                center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+            )
             screen.blit(no_scores_text, no_scores_rect)
         else:
             # Render scores

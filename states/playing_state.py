@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 class PlayingState(BaseState):
     """Active gameplay state with game loop logic."""
 
-    def __init__(self, game: "Game"):
+    def __init__(self, game: "Game") -> None:
         super().__init__(game)
         self.score = 0
         self.lives = STARTING_LIVES
@@ -39,7 +39,7 @@ class PlayingState(BaseState):
         self.asteroid_field = None
         self.hud = None
 
-    def _reset_game_session(self):
+    def _reset_game_session(self) -> None:
         """Initialize/reset all game session variables."""
         self.score = 0
         self.lives = STARTING_LIVES
@@ -110,13 +110,13 @@ class PlayingState(BaseState):
             self._respawn_player()
             return None
 
-    def _respawn_player(self):
+    def _respawn_player(self) -> None:
         """Respawn player at center with invincibility."""
         self.player.reset(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
         self.player.start_invincibility()
         self._clear_safety_zone()
 
-    def _clear_safety_zone(self):
+    def _clear_safety_zone(self) -> None:
         """Remove asteroids near the spawn point."""
         center = pygame.Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
         for asteroid in list(self.asteroids):
@@ -133,7 +133,7 @@ class PlayingState(BaseState):
         }
         return points_map.get(kind, 0)
 
-    def _check_extra_life(self):
+    def _check_extra_life(self) -> None:
         """Award extra life every EXTRA_LIFE_POINTS points."""
         if self.score >= self.extra_life_threshold:
             self.lives += 1

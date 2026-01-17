@@ -2,7 +2,13 @@ from typing import TYPE_CHECKING
 
 import pygame
 
-from constants import FONT_SIZE_LARGE, FONT_SIZE_MEDIUM, FONT_SIZE_SMALL, SCREEN_HEIGHT, SCREEN_WIDTH
+from constants import (
+    FONT_SIZE_LARGE,
+    FONT_SIZE_MEDIUM,
+    FONT_SIZE_SMALL,
+    SCREEN_HEIGHT,
+    SCREEN_WIDTH,
+)
 from .base_state import BaseState, GameStateType
 
 if TYPE_CHECKING:
@@ -59,8 +65,12 @@ class GameOverState(BaseState):
             elif event.key == pygame.K_BACKSPACE:
                 self.player_name = self.player_name[:-1]
             elif len(self.player_name) < self.MAX_NAME_LENGTH:
-                if event.unicode.isprintable() and event.unicode and event.unicode != " " or (event.unicode == " " and len(self.player_name) > 0):
-                    self.player_name += event.unicode
+                char = event.unicode
+                is_valid_char = char and char.isprintable()
+                is_allowed_space = char == " " and len(self.player_name) > 0
+                is_non_space = char != " "
+                if is_valid_char and (is_non_space or is_allowed_space):
+                    self.player_name += char
         return None
 
     def _handle_menu_input(self, event: pygame.event.Event) -> GameStateType | None:
@@ -80,21 +90,17 @@ class GameOverState(BaseState):
     async def update(self, dt: float) -> GameStateType | None:
         # Check if this is a high score on first update
         if self.loading:
-            print(f"GameOverState: checking if {self.game.final_score} is high score")
             self.is_high_score = await self.game.score_repository.is_high_score(
                 self.game.final_score
             )
-            print(f"GameOverState: is_high_score={self.is_high_score}")
             self.loading = False
 
         # Handle score submission
         if self.should_submit and not self.submitting:
-            print(f"GameOverState: submitting score player={self.player_name}, score={self.game.final_score}")
             self.submitting = True
-            result = await self.game.score_repository.save_score(
+            await self.game.score_repository.save_score(
                 self.player_name, self.game.final_score
             )
-            print(f"GameOverState: save_score result={result}")
             self.submitting = False
             self.should_submit = False
             self.name_submitted = True
@@ -118,7 +124,9 @@ class GameOverState(BaseState):
 
         if self.loading:
             loading_text = self.info_font.render("Loading...", True, "gray")
-            loading_rect = loading_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+            loading_rect = loading_text.get_rect(
+                center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+            )
             screen.blit(loading_text, loading_rect)
         elif self.is_high_score and not self.name_submitted:
             # Render high score entry
@@ -139,7 +147,9 @@ class GameOverState(BaseState):
             if self.submitting:
                 hint_text = self.info_font.render("Saving...", True, "yellow")
             else:
-                hint_text = self.info_font.render("Press ENTER to confirm", True, "gray")
+                hint_text = self.info_font.render(
+                    "Press ENTER to confirm", True, "gray"
+                )
             hint_rect = hint_text.get_rect(center=(SCREEN_WIDTH // 2, 460))
             screen.blit(hint_text, hint_rect)
         else:
