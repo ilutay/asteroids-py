@@ -1,6 +1,6 @@
 # Asteroids
 
-A classic Asteroids game built with Pygame, featuring web support via pygame-web and a shared high scores backend.
+A classic Asteroids game built with Pygame, featuring web support via pygame-web and a high scores backend.
 
 ## Project Structure
 
@@ -22,27 +22,6 @@ asteroids-py/
 └── .env.example            # Configuration template
 ```
 
-## Running Locally
-
-### Desktop Game
-
-1. Install dependencies:
-
-   ```bash
-   uv sync
-   ```
-
-2. Run the game:
-   ```bash
-   uv run python main.py
-   ```
-
-By default, the game uses local SQLite storage (`./data/asteroids.db`).
-
-### Using Remote API (Optional)
-
-To use the remote high scores API instead of local storage:
-
 1. Copy the environment template:
 
    ```bash
@@ -52,7 +31,7 @@ To use the remote high scores API instead of local storage:
 2. Configure `.env`:
 
    ```env
-   API_URL=https://your-domain.com/api
+   API_URL=https://asteroids.ilutay.com/api
    API_KEY=your-secret-key
    USE_REMOTE_API=true
    ```
@@ -226,14 +205,6 @@ cd /opt/asteroids
 ```
 
 ### Step 4: Copy Server Files
-
-From your local machine:
-
-```bash
-scp -r server docker-compose.yml root@your-vps-ip:/opt/asteroids/
-```
-
-Or clone from git:
 
 ```bash
 git clone git@github.com:ilutay/asteroids-py.git /opt/asteroids
